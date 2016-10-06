@@ -7,7 +7,9 @@
 
 namespace Fire
 {
-  Engine::Engine() : active_(false)
+  Engine::Engine() 
+  : active_(false),
+    frame_counter_(nullptr)
   {
     
   }
@@ -33,7 +35,7 @@ namespace Fire
 
   void Engine::Initialize()
   {
-    timer_ = new FrameCounter();
+    frame_counter_ = new FrameCounter();
     for(auto sit : systems_)
     {
       sit->Initialize();
@@ -49,12 +51,12 @@ namespace Fire
     }
   }
 
-  void Engine::Update(float dt)
+  void Engine::Update()
   {
-    timer_->Update();
+    frame_counter_->Update();
     for(auto sit : systems_)
     {
-      sit->Update(dt);
+      sit->Update(frame_counter_->GetDt());
     }
   }
 

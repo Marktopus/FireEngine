@@ -12,7 +12,7 @@ int main()
 
   while(engine->GetActive())
   {
-    engine->Update(1.0/60.0);
+    engine->Update();
   }
 
   engine->CleanUp();

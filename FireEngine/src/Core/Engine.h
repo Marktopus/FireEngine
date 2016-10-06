@@ -19,10 +19,10 @@ namespace Fire
       void Load();
       void Initialize();
       void Reinitialize();
-      void Update(float dt);
+      void Update();
       void CleanUp();
     private:
-      FrameCounter* timer_;
+      FrameCounter* frame_counter_;
       bool active_;
       std::vector<System*> systems_;
   };

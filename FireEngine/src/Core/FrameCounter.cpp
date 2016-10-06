@@ -16,6 +16,11 @@ namespace Fire
 
   }
 
+  double FrameCounter::GetDt()
+  {
+    return dt_;
+  }
+
   void FrameCounter::Update()
   { 
     if(accumulator_ == 0.0)

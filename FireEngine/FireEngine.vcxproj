@@ -155,6 +155,10 @@
     <ClInclude Include="src\Core\Component.h" />
     <ClInclude Include="src\Core\Engine.h" />
     <ClInclude Include="src\Core\FrameCounter.h" />
+    <ClInclude Include="src\Math\MathUtil.h" />
+    <ClInclude Include="src\Math\Matrix4.h" />
+    <ClInclude Include="src\Math\Vector3.h" />
+    <ClInclude Include="src\Math\Vector4.h" />
     <ClInclude Include="src\Util\Timer.h" />
     <ClInclude Include="src\Graphics\Graphics.h" />
     <ClInclude Include="src\Precompiled.h" />
@@ -164,6 +168,10 @@
     <ClCompile Include="src\Core\Component.cpp" />
     <ClCompile Include="src\Core\Engine.cpp" />
     <ClCompile Include="src\Core\FrameCounter.cpp" />
+    <ClCompile Include="src\Math\MathUtil.cpp" />
+    <ClCompile Include="src\Math\Matrix4.cpp" />
+    <ClCompile Include="src\Math\Vector3.cpp" />
+    <ClCompile Include="src\Math\Vector4.cpp" />
     <ClCompile Include="src\Util\Timer.cpp" />
     <ClCompile Include="src\Graphics\Graphics.cpp" />
     <ClCompile Include="src\main.cpp" />

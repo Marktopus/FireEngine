@@ -13,7 +13,7 @@ namespace Fire
   {
 
   }
-
+  
   void Timer::Start()
   {
     start_time_ = clock_.now();

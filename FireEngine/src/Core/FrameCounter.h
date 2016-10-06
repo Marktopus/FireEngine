@@ -11,6 +11,8 @@ namespace Fire
       FrameCounter();
       ~FrameCounter();
       void Update();
+      double GetDt();
+
       
     private:
       double accumulator_;
