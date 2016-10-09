@@ -7,6 +7,7 @@ namespace sf
 }
 namespace Fire
 {
+  class GraphicsApi;
   class Graphics : public System
   {
     public:
@@ -19,5 +20,6 @@ namespace Fire
       void Reinitialize();
     private:
       sf::Window* window_;
+      GraphicsApi* api_;
   };
 }
