@@ -6,7 +6,9 @@
 
 namespace Fire
 {
-  System::System() : active_(false)
+  System::System(SystemType::Enum type)
+  : active_(false),
+    type_(type)
   {
 
   }
@@ -39,13 +41,13 @@ namespace Fire
     return active_;
   }
 
+  SystemType::Enum System::GetType()
+  {
+    return type_;
+  }
+
   void System::AddComponent(Component* comp)
   {
     components_.push_back(comp);
-  }
-   
-  void System::SetEngine(Engine* engine)
-  {
-    engine_ = engine;
   }
 }

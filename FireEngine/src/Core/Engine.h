@@ -1,6 +1,6 @@
 #pragma once
-#include <vector>
 
+#include "SystemType.h"
 namespace Fire 
 {
   class System;
@@ -11,20 +11,23 @@ namespace Fire
       Engine();
       ~Engine();
 
-      virtual void Activate() final;
-      virtual void Deactivate() final;
-      virtual bool GetActive() final;
+      static void Activate();
+      static void Deactivate();
+      static bool GetActive();
 
-      void AddSystem(System* system);
-      void Load();
-      void Initialize();
-      void Reinitialize();
-      void Update();
-      void CleanUp();
+      static System* GetSystem(SystemType::Enum type);
+      static void AddSystem(System* system);
+      static void Load();
+      static void Initialize();
+      static void Reinitialize();
+      static void Update();
+      static void CleanUp();
+      static Engine* GetEngine();
     private:
+      static Engine* engine;
       FrameCounter* frame_counter_;
       bool active_;
-      std::vector<System*> systems_;
+      System* systems_[SystemType::Count];
   };
 }
 

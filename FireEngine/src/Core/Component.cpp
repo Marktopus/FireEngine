@@ -3,7 +3,9 @@
 
 namespace Fire
 {
-  Component::Component() : active_(false)
+  Component::Component(ComponentType::Enum type) 
+  : active_(false),
+    type_(type)
   {
 
   }
@@ -26,5 +28,10 @@ namespace Fire
   bool Component::GetActive()
   {
     return active_;
+  }
+
+  ComponentType::Enum Component::GetType()
+  {
+    return type_;
   }
 }

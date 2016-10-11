@@ -1,12 +1,13 @@
 #include "Precompiled.h"
 #include "DirectX11Api.h"
-
+#include "DxBuffers.h"
+#include "DxShader.h"
 
 #include "SFML/Window.hpp"
 #include "Math/Vector4.h"
 namespace Fire
 {
-  DirectX11Api::DirectX11Api() : GraphicsApi(GraphicsApi::DX11)
+  DirectX11Api::DirectX11Api() : GraphicsApi(ApiType::DX11)
   {
 
   }
@@ -174,302 +175,77 @@ namespace Fire
 
 
 
-    //   BUFFER INIT
-    Vector4* vertices = new Vector4[3];
-    vertices[0] = Vector4(0.0, 0.0, 0.0, 1.0);
-    vertices[1] = Vector4(1.0, 0.0, 0.0, 1.0);
-    vertices[2] = Vector4(1.0, 1.0, 0.0, 1.0);
-
-    D3D11_BUFFER_DESC bufferDesc;
-    SecureZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
-    D3D11_SUBRESOURCE_DATA* buffData = nullptr;
-
-    bufferDesc.ByteWidth = sizeof(float) * 4 * 3;
-    bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-    buffData = (D3D11_SUBRESOURCE_DATA*) alloca(sizeof(D3D11_SUBRESOURCE_DATA));
-    SecureZeroMemory(buffData, sizeof(D3D11_SUBRESOURCE_DATA));
-    buffData->pSysMem = vertices;
-
     
 
 
-    error = d3d_device_->CreateBuffer(
-      &bufferDesc,
-      buffData,
-      &temp_render_buffer_);
-
-    if(error != S_OK)
-    {
-      __debugbreak();
-    }
     //SHADER INIT
-   
-    ID3D10Blob* errorMsg; 
-    ID3D10Blob* vertShaderBuf; 
-    std::string shaderFile("src/shaders/color.vs");
-    std::wstring dxName(shaderFile.begin(), shaderFile.end());
-    error = D3DCompileFromFile(
-      dxName.c_str(),
-      NULL,
-      NULL,
-      "main",
-      "vs_5_0",
-    #ifdef _DEBUG
-      D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-    #elif _RELEASE
-      D3D10_SHADER_ENABLE_STRICTNESS,
-    #endif
-      0,
-      &vertShaderBuf,
-      &errorMsg);
-    
-    if(error != S_OK) 
+    temp_shader_ = new DxShader("color"); 
+    if(!temp_shader_->Compile(d3d_device_))
     {
-      __debugbreak();
-    }
-    if(errorMsg)
-    {
-      //error?
-      if(vertShaderBuf)
-      {
-        vertShaderBuf->Release();
-      }
-      std::cout << "shader " << shaderFile << "failed to compile with error" << (char*)errorMsg->GetBufferPointer() << std::endl;
-      errorMsg->Release();
-    }
-    else
-    {
-      error = d3d_device_->CreateVertexShader(
-        vertShaderBuf->GetBufferPointer(), 
-        vertShaderBuf->GetBufferSize(), 
-        nullptr, 
-        &temp_vert_shader_);  
-      if(error)
-      {
-        __debugbreak();
-      }
-    }
-
-
-    struct ParamTypeInfo
-    {
-      std::string name;
-      size_t size;
-      size_t offset;
-    };
-
-
-    ID3D11ShaderReflection* vertShaderReflection = nullptr;
-    error = D3DReflect(
-      vertShaderBuf->GetBufferPointer(),
-      vertShaderBuf->GetBufferSize(),
-      IID_ID3D11ShaderReflection,
-      (void**) &vertShaderReflection);
-
-    if(error != S_OK)
-    {
-      __debugbreak();
-    }
-
-    D3D11_SHADER_DESC shaderDesc;
-    error = vertShaderReflection->GetDesc(&shaderDesc);
-
-    if(error != S_OK)
-    {
-      __debugbreak();
-    }
-    // Read input layout description from shader info
-    std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
-    for(unsigned i = 0; i < shaderDesc.InputParameters; i++)
-    {
-      ParamTypeInfo newParam;
-      D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
-      error = vertShaderReflection->GetInputParameterDesc(i, &paramDesc); 
-      if(error != S_OK)
-      {
-        __debugbreak();
-      }
-
-      // fill out input element desc
-      D3D11_INPUT_ELEMENT_DESC elementDesc;
-      SecureZeroMemory(&elementDesc, sizeof(elementDesc));
-      elementDesc.SemanticName = paramDesc.SemanticName;
-      elementDesc.SemanticIndex = paramDesc.SemanticIndex;
-      elementDesc.InputSlot = 0;
-      elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-      elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-      elementDesc.InstanceDataStepRate = 0;
-      if(paramDesc.Mask == 1)
-      {
-        if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32_UINT;
-        else if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32_SINT;
-        else if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32_FLOAT;
-      }
-      else if(paramDesc.Mask <= 3)
-      {
-        if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32_UINT;
-        else if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32_SINT;
-        else if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
-      }
-      else if(paramDesc.Mask <= 7)
-      {
-        if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_UINT;
-        else if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_SINT;
-        else if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-      }
-      else if(paramDesc.Mask <= 15)
-      {
-        if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-        else if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
-        else if(paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-      }
-      inputLayoutDesc.push_back(elementDesc);
-    }
-
-
-
-
-
-
-
-    //for(size_t i = 0; i < shaderDesc.ConstantBuffers; i++)
-    //{
-    //  ID3D11ShaderReflectionConstantBuffer* pConstantReflection = vertShaderReflection->GetConstantBufferByIndex(i);
-    //  D3D11_SHADER_BUFFER_DESC desc;
-    //  error = pConstantReflection->GetDesc(&desc);
-    //  if(error != S_OK)
-    //  {
-    //    __debugbreak();
-    //  }
-
-    //  D3D11_BUFFER_DESC bufferDesc;
-    //  SecureZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
-    //  D3D11_SUBRESOURCE_DATA* buffData = nullptr;
-
-    //  bufferDesc.ByteWidth = sizeof(float) * 4 * 3;
-    //  bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    //  bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    //  bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-
-    //  d3d_device_->CreateBuffer(
-    //    &bufferDesc,
-    //    buffData,
-    //    &temp_render_buffer_);
-
-    //  for(size_t varInd = 0; varInd < desc.Variables; ++varInd)
-    //  {
-    //    ID3D11ShaderReflectionVariable* curVar = pConstantReflection->GetVariableByIndex(varInd);
-    //    D3D11_SHADER_VARIABLE_DESC varDesc;
-    //    error = curVar->GetDesc(&varDesc);
-    //    if(error != S_OK)
-    //    {
-    //      __debugbreak();
-    //    }
-
-    //    newBuf->AddParameter({varDesc.Name, varDesc.Size, varDesc.StartOffset});
-
-    //  }
-    //  newBuf->Initialize();
-    //  AddConstantBuffer(newBuf);
-    //  //m_cBuffer[i] = new d3d::ConstantBuffer(*m_pDevice, desc.Size);
-    //}
-    //int bufSize = shaderBuf->GetBufferSize();
-    error = d3d_device_->CreateInputLayout(
-      &inputLayoutDesc[0],
-      inputLayoutDesc.size(),
-      vertShaderBuf->GetBufferPointer(),
-      vertShaderBuf->GetBufferSize(),
-      &layout_);
-
-    if(error)
-    {
-      __debugbreak();
-    }
-
-
-
-
-
-    ID3D10Blob* pixShaderBuf; 
-
-    shaderFile = "src/shaders/color.ps";
-    dxName.assign(shaderFile.begin(), shaderFile.end());
-    error = D3DCompileFromFile(
-      dxName.c_str(),
-      NULL,
-      NULL,
-      "main",
-      "ps_5_0",
-    #ifdef _DEBUG
-      D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-    #elif _RELEASE
-      D3D10_SHADER_ENABLE_STRICTNESS,
-    #endif
-      0,
-      &pixShaderBuf,
-      &errorMsg);
-
-    if(error != S_OK)
-    {
-      __debugbreak();
-    }
-    if(errorMsg)
-    {
-      //error?
-      if(pixShaderBuf)
-      {
-        pixShaderBuf->Release();
-      }
-      std::cout << "shader " << shaderFile << "failed to compile with error" << (char*) errorMsg->GetBufferPointer() << std::endl;
-      errorMsg->Release();
-    }
-    else
-    {
-      error = d3d_device_->CreatePixelShader(
-        pixShaderBuf->GetBufferPointer(),
-        pixShaderBuf->GetBufferSize(),
-        nullptr,
-        &temp_pix_shader_);
-      if(error)
-      {
-        __debugbreak();
-      }
-
+      //die???
     }
   }
 
-  void DirectX11Api::Render()
+  void DirectX11Api::SetMesh(VertexBuffer* vertBuf)
   {
-     // Clear the back buffer.
-    d3d_context_->ClearRenderTargetView(render_target_view_, Vector4(0.0f, 1.0f, 0.0f, 1.0f).v);
+    unsigned stride = vertBuf->GetStride();
+    unsigned offset = 0;
+    ID3D11Buffer* buf = (ID3D11Buffer*)vertBuf->GetBufferPointer();
+    d3d_context_->IASetVertexBuffers(0, 1, &buf, &stride, &offset);
+    d3d_context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+  }
 
+  void DirectX11Api::SetShader(Shader* shader)
+  {
+    ID3D11InputLayout* layout = (ID3D11InputLayout*)shader->GetLayoutPointer();
+    d3d_context_->IASetInputLayout(layout);
+
+    ID3D11VertexShader* vert = (ID3D11VertexShader*)shader->GetVertPointer();
+    d3d_context_->VSSetShader(vert, 0, 0);
+    ID3D11PixelShader* pix = (ID3D11PixelShader*)shader->GetPixPointer();
+    d3d_context_->PSSetShader(pix, 0, 0);
+  }
+
+  void DirectX11Api::SetTexture()
+  {
+
+  }
+
+  void DirectX11Api::BeginScene()
+  {
+    // Clear the back buffer.
+    d3d_context_->ClearRenderTargetView(render_target_view_, Vector4(0.0f, 1.0f, 0.0f, 1.0f).v);
     // Clear the depth buffer.
     d3d_context_->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+  }
 
-    //do things in here ~~~~
+  void DirectX11Api::Render(size_t numVerts)
+  {
+    d3d_context_->Draw(numVerts, 0);
+  }
 
-    d3d_context_->IASetInputLayout(layout_);
-
-    d3d_context_->PSSetShader(temp_pix_shader_, 0, 0);
-    d3d_context_->VSSetShader(temp_vert_shader_, 0, 0);
-    //SETTING MESH TO RENDER
-    unsigned stride = sizeof(Vector4);
-    unsigned offset = 0;
-    d3d_context_->IASetVertexBuffers(0, 1, &temp_render_buffer_, &stride, &offset);
-    int i = 0;
-    d3d_context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-
-    d3d_context_->Draw(3, 0);
-
-    
+  void DirectX11Api::EndScene()
+  {
     d3d_swap_chain_->Present(0, 0);
   }
 
   void DirectX11Api::CleanUp()
   {
 
+  }
+
+  Shader* DirectX11Api::MakeShader(const std::string& name)
+  {
+    DxShader* newShader = new DxShader(name);
+    newShader->Compile(d3d_device_);
+    return (Shader*)newShader;
+  }
+
+  VertexBuffer* DirectX11Api::MakeVertexBuffer(
+    size_t size, 
+    size_t stride, 
+    void* src)
+  {
+    return (VertexBuffer*)new DxVertexBuffer(d3d_device_, size, stride, src);
   }
 }

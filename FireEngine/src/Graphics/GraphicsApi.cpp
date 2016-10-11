@@ -3,7 +3,7 @@
 
 namespace Fire
 {
-  GraphicsApi::GraphicsApi(GraphicsApi::Type type) : api_type_(type)
+  GraphicsApi::GraphicsApi(ApiType::Enum type) : api_type_(type)
   {
 
   }
@@ -13,7 +13,7 @@ namespace Fire
 
   }
 
-  GraphicsApi::Type GraphicsApi::GetType()
+  ApiType::Enum GraphicsApi::GetType()
   {
     return api_type_;
   }

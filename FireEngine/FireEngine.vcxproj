@@ -152,14 +152,21 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Components\Renderable.h" />
     <ClInclude Include="src\Core\Component.h" />
+    <ClInclude Include="src\Core\ComponentType.h" />
     <ClInclude Include="src\Core\Engine.h" />
     <ClInclude Include="src\Core\FrameCounter.h" />
+    <ClInclude Include="src\Core\GameObject.h" />
+    <ClInclude Include="src\Core\SystemType.h" />
     <ClInclude Include="src\Graphics\Buffer.h" />
     <ClInclude Include="src\Graphics\DirectX11Api.h" />
     <ClInclude Include="src\Graphics\DxBuffers.h" />
     <ClInclude Include="src\Graphics\DxIncludes.h" />
+    <ClInclude Include="src\Graphics\DxShader.h" />
     <ClInclude Include="src\Graphics\GraphicsApi.h" />
+    <ClInclude Include="src\Graphics\Mesh.h" />
+    <ClInclude Include="src\Graphics\Shader.h" />
     <ClInclude Include="src\Math\MathUtil.h" />
     <ClInclude Include="src\Math\Matrix4.h" />
     <ClInclude Include="src\Math\Vector3.h" />
@@ -170,13 +177,18 @@
     <ClInclude Include="src\Core\System.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Components\Renderable.cpp" />
     <ClCompile Include="src\Core\Component.cpp" />
     <ClCompile Include="src\Core\Engine.cpp" />
     <ClCompile Include="src\Core\FrameCounter.cpp" />
+    <ClCompile Include="src\Core\GameObject.cpp" />
     <ClCompile Include="src\Graphics\Buffer.cpp" />
     <ClCompile Include="src\Graphics\DirectX11Api.cpp" />
     <ClCompile Include="src\Graphics\DxBuffers.cpp" />
+    <ClCompile Include="src\Graphics\DxShader.cpp" />
     <ClCompile Include="src\Graphics\GraphicsApi.cpp" />
+    <ClCompile Include="src\Graphics\Mesh.cpp" />
+    <ClCompile Include="src\Graphics\Shader.cpp" />
     <ClCompile Include="src\Math\MathUtil.cpp" />
     <ClCompile Include="src\Math\Matrix4.cpp" />
     <ClCompile Include="src\Math\Vector3.cpp" />

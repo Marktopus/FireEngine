@@ -7,7 +7,12 @@ namespace sf
 }
 namespace Fire
 {
+  class Mesh;
   class GraphicsApi;
+  class Texture;
+  class Shader;
+  class VertexBuffer;
+  class Renderable;
   class Graphics : public System
   {
     public:
@@ -18,8 +23,22 @@ namespace Fire
       void Update(float dt);
       void CleanUp();
       void Reinitialize();
+      GraphicsApi* GetApi();
+
+      void SetMesh(const std::string& meshName);
+      void SetTexture(const std::string& textureName);
+      void SetShader(const std::string& shaderName);
     private:
       sf::Window* window_;
       GraphicsApi* api_;
+
+      VertexBuffer* cur_buf_;
+      Texture* cur_texture_;
+      Shader* cur_shader_;
+
+      std::unordered_map<std::string, Mesh*> meshes_;
+      std::unordered_map<std::string, Texture*> textures_;
+      std::unordered_map<std::string, Shader*> shaders_;
+      std::vector<Renderable*> renderables_;
   };
 }

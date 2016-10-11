@@ -1,22 +1,27 @@
 #pragma once
 
+#include "ComponentType.h"
+
 namespace Fire 
 {
   class Component
   {
     public:
-      Component();
+      Component(ComponentType::Enum type);
       virtual ~Component();
 
-      virtual void Activate() final;
-      virtual void Deactivate() final;
-      virtual bool GetActive() final;
+      void Activate();
+      void Deactivate();
+      bool GetActive();
+      ComponentType::Enum GetType();
+      
 
       virtual void Initialize() = 0;
       virtual void Reinitialize() = 0;
       virtual void Load() = 0;
       virtual void Update(float dt) = 0;
-    private:
+    protected:
+      ComponentType::Enum type_;
       bool active_;
   };
 }

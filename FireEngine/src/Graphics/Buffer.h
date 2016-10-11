@@ -27,13 +27,13 @@ namespace Fire
     public:
       ConstantBuffer(
         size_t size, 
-        void* src = nullptr,  
-        CpuAccessType::Enum cpuAccess = CpuAccessType::Write, 
-        BufferUsageType::Enum bufferType = BufferUsageType::ReadGpuWriteCpu);
+        void* src = nullptr);
       virtual ~ConstantBuffer();
       virtual void Init() = 0;
-      virtual void BufferData() = 0;
+      //virtual void BufferData() = 0;
       virtual void SetSource(void* src) = 0;
+      virtual void* GetSource();
+      virtual size_t GetSize();
       virtual void* GetBufferPointer() = 0;
     protected:
       size_t size_;
@@ -46,14 +46,19 @@ namespace Fire
       VertexBuffer(
         size_t size, 
         size_t stride, 
-        void* src = nullptr,  
-        CpuAccessType::Enum cpuAccess = CpuAccessType::None, 
-        BufferUsageType::Enum bufferType = BufferUsageType::ReadGpu);
+        void* src = nullptr);
       virtual ~VertexBuffer();
       virtual void Init() = 0;
+      virtual void SetSource(void* src) = 0;
+      virtual void* GetSource();
+      virtual size_t GetSize();
+      virtual size_t GetStride();
+      virtual size_t GetNumVerts();
       virtual void* GetBufferPointer() = 0;
     protected:
+      void*  source_;
       size_t size_;
       size_t stride_;
+      size_t num_verts_;
   };
 }

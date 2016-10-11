@@ -5,13 +5,14 @@
 
 #include "Core/FrameCounter.h"
 
+Fire::Engine* Fire::Engine::engine = new Fire::Engine();
 namespace Fire
 {
   Engine::Engine() 
   : active_(false),
     frame_counter_(nullptr)
   {
-    
+    memset(systems_, 0, sizeof(systems_));
   }
 
   Engine::~Engine()
@@ -19,75 +20,109 @@ namespace Fire
 
   }
 
-  void Engine::AddSystem(System* system) 
+  System* Engine::GetSystem(SystemType::Enum type)
   {
-    system->SetEngine(this);
-    systems_.push_back(system);
+    return engine->systems_[type];
+  }
+
+  void Engine::AddSystem(System* system) 
+  { 
+    SystemType::Enum type = system->GetType();
+    if(!engine->systems_[type])
+    {
+      engine->systems_[type] = system;
+    }
   }
 
   void Engine::Load()
   {
-    for(auto sit : systems_)
+    for(auto sit : engine->systems_)
     {
-      sit->Load();
+      if(sit)
+      {
+        sit->Load();
+      }
     }
   }
 
   void Engine::Initialize()
   {
-    frame_counter_ = new FrameCounter();
-    for(auto sit : systems_)
+    engine->frame_counter_ = new FrameCounter();
+    for(auto sit : engine->systems_)
     {
-      sit->Initialize();
+      if(sit)
+      {
+        sit->Initialize();
+      }
     }
   }
 
   void Engine::Reinitialize()
   {
-    for(auto sit : systems_)
+    for(auto sit : engine->systems_)
     {
-      sit->CleanUp();
-      sit->Initialize();
+      if(sit)
+      {
+        sit->CleanUp();
+        sit->Initialize();
+      }
     }
   }
 
   void Engine::Update()
   {
-    frame_counter_->Update();
-    for(auto sit : systems_)
+    engine->frame_counter_->Update();
+    for(auto sit : engine->systems_)
     {
-      sit->Update(frame_counter_->GetDt());
+      if(sit)
+      {
+        sit->Update(engine->frame_counter_->GetDt());
+      }
     }
   }
 
   void Engine::CleanUp()
   {
-    for(auto sit : systems_)
+    for(auto sit : engine->systems_)
     {
-      sit->CleanUp();
+      if(sit)
+      {
+        sit->CleanUp();
+      }
     }
   }
 
   void Engine::Activate()
-  {
-    for(auto sit : systems_)
+  { 
+    for(auto sit : engine->systems_)
     {
-      sit->Activate();
+      if(sit)
+      {
+        sit->Activate();
+      }
     }
-    active_ = true;
+    engine->active_ = true;
   }
 
   void Engine::Deactivate()
   {
-    for(auto sit : systems_)
+    for(auto sit : engine->systems_)
     {
-      sit->Deactivate();
+      if(sit)
+      {
+        sit->Deactivate();
+      }
     }
-    active_ = false;
+    engine->active_ = false;
   }
 
   bool Engine::GetActive()
   {
-    return active_;
+    return engine->active_;
+  }
+
+  Engine* Engine::GetEngine()
+  {
+    return Engine::engine;
   }
 }

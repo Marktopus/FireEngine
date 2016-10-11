@@ -1,5 +1,5 @@
 #pragma once
-
+#include "SystemType.h"
 namespace Fire
 {
   class Component;
@@ -7,14 +7,14 @@ namespace Fire
   class System
   {
     public:
-      System();
+      System(SystemType::Enum type);
       virtual ~System();
 
-      virtual void Activate() final;
-      virtual void Deactivate() final;
-      virtual bool GetActive() final;
-      virtual void AddComponent(Component* system) final;
-      virtual void SetEngine(Engine* engine) final;
+      void Activate();
+      void Deactivate();
+      bool GetActive();
+      SystemType::Enum GetType();
+      void AddComponent(Component* system);
 
       virtual void Load() = 0;
       virtual void Initialize() = 0;
@@ -24,8 +24,7 @@ namespace Fire
 
     protected:
       Engine* engine_;
-
-    private:
+      SystemType::Enum type_;
       std::vector<Component*> components_;
       bool active_;
   };

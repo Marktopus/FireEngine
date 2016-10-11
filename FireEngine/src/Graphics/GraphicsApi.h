@@ -5,30 +5,49 @@ namespace sf
   class Window;
 }
 
+
 namespace Fire
-{ 
+{
+  class Shader;
+  class VertexBuffer;
+  namespace ApiType
+  {
+    enum Enum
+    {
+      DX11,
+      GL,
+      DX12,
+      Vulkan,
+      Count
+    };
+  } 
   class GraphicsApi
   { 
     public:
-      enum Type
-      {
-        DX11,
-        GL,
-        DX12,
-        Vulkan
-      };
 
-      GraphicsApi(Type apiType);
+      GraphicsApi(ApiType::Enum apiType);
       virtual ~GraphicsApi();
-      virtual Type GetType() final;
-
+      ApiType::Enum GetType();
       virtual void Initialize(sf::Window*) = 0;
-      virtual void Render() = 0;
+
+      virtual void SetMesh(VertexBuffer* vertBuf) = 0;
+      virtual void SetShader(Shader* vertBuf) = 0;
+      virtual void SetTexture() = 0;
+
+      virtual void BeginScene() = 0;
+      virtual void Render(size_t numVerts) = 0;
+      virtual void EndScene() = 0;
+
       virtual void CleanUp() = 0;
       
+      virtual Shader* MakeShader(const std::string& name) = 0;
+      virtual VertexBuffer* MakeVertexBuffer(
+        size_t size, 
+        size_t stride, 
+        void* src = nullptr) = 0;
     private:
 
-      Type api_type_;
+      ApiType::Enum api_type_;
       
   };
 }
