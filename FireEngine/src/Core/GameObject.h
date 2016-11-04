@@ -13,6 +13,9 @@ namespace Fire
 
       void AddComponent(Component* newComp);
       Component* GetComponent(ComponentType::Enum compType);
+      Vector3 GetPosition();
+      Vector3 GetScale();
+      Vector3 GetRotation();
     private:
       std::string name_;
       Vector3 position_;

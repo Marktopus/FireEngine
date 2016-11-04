@@ -6,7 +6,7 @@
 
 namespace Fire
 {
-  System::System(SystemType::Enum type)
+  System::System(SystemType::Enum type )
   : active_(false),
     type_(type)
   {

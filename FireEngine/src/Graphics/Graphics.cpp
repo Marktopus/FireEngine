@@ -12,6 +12,8 @@
 #include "Shader.h"
 #include "Components/Renderable.h"
 #include "Buffer.h"
+#include "Camera.h"
+#include "Core/GameObject.h"
 namespace Fire
 {
   Graphics::Graphics()
@@ -22,6 +24,7 @@ namespace Fire
 
   {
     api_ = new DirectX11Api();
+    camera_ = new Camera();
   }
 
   Graphics::~Graphics()
@@ -40,16 +43,23 @@ namespace Fire
     api_->Initialize(window_);
     //   BUFFER INIT
     Vector4* vertices = new Vector4[3];
-    vertices[0] = Vector4(0.0, 0.0, 0.0, 1.0);
-    vertices[1] = Vector4(1.0, 0.0, 0.0, 1.0);
-    vertices[2] = Vector4(1.0, 1.0, 0.0, 1.0);
+    vertices[0] = Vector4(-0.5, -0.5, 0.0, 1.0);
+    vertices[1] = Vector4(0.5, -0.5, 0.0, 1.0);
+    vertices[2] = Vector4(0.5, 0.5, 0.0, 1.0);
     VertexBuffer* newBuf = api_->MakeVertexBuffer(
       sizeof(Vector4) * 3,
       sizeof(Vector4),
       vertices);
-
+    
     meshes_.insert(std::make_pair("triangle", new Mesh(newBuf)));
-    shaders_.insert(std::make_pair("color", api_->MakeShader("color")));
+    Shader* newShader = api_->MakeShader("color");
+    shaders_.insert(std::make_pair("color", newShader));
+    
+    camera_->UpdatePerspective(); 
+    newShader->UpdateBuffer("perspBuf", &camera_->perspective_);
+
+    camera_->UpdateView(); 
+    newShader->UpdateBuffer("viewBuf",&camera_->view_);
 
     renderables_.push_back(new Renderable("triangle", "color"));
   }
@@ -71,6 +81,23 @@ namespace Fire
     for(auto it : renderables_)
     {
       it->PrepForRender();
+      GameObject* base = it->GetBase();
+      Matrix4 transformation;
+      transformation.Identity();
+      Vector3 pos;
+      pos.Zero();
+      //pos.x += 0.05;
+      Vector3 rot;
+      rot.Zero();
+      rot.z = Math::Pi/4.0f;
+      transformation.Translate(pos);//base->GetPosition());
+      transformation.Rotate(rot);//base->GetRotation());
+      transformation.Scale(Vector3(1.0f,1.0f,1.0f));//base->GetScale());
+      //transformation.Transpose();
+
+
+      cur_shader_->UpdateBuffer("modelBuf",&transformation);
+      
       api_->Render(cur_buf_->GetNumVerts());
     }
     api_->EndScene();
@@ -129,8 +156,10 @@ namespace Fire
       if(shader != cur_shader_)
       {
         cur_shader_ = shader;
+        shader->UpdateBuffers();
         api_->SetShader(shader);
       }
+      shader->PreRender();
     }
   }
 

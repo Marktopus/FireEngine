@@ -173,17 +173,6 @@ namespace Fire
     // Create the viewport.
     d3d_context_->RSSetViewports(1, &viewport);
 
-
-
-    
-
-
-    //SHADER INIT
-    temp_shader_ = new DxShader("color"); 
-    if(!temp_shader_->Compile(d3d_device_))
-    {
-      //die???
-    }
   }
 
   void DirectX11Api::SetMesh(VertexBuffer* vertBuf)
@@ -204,6 +193,8 @@ namespace Fire
     d3d_context_->VSSetShader(vert, 0, 0);
     ID3D11PixelShader* pix = (ID3D11PixelShader*)shader->GetPixPointer();
     d3d_context_->PSSetShader(pix, 0, 0);
+    shader->UpdateBuffers();
+    shader->PreRender();
   }
 
   void DirectX11Api::SetTexture()
@@ -238,6 +229,7 @@ namespace Fire
   {
     DxShader* newShader = new DxShader(name);
     newShader->Compile(d3d_device_);
+
     return (Shader*)newShader;
   }
 
@@ -246,6 +238,16 @@ namespace Fire
     size_t stride, 
     void* src)
   {
-    return (VertexBuffer*)new DxVertexBuffer(d3d_device_, size, stride, src);
+    return (VertexBuffer*)new DxVertexBuffer(size, stride, src);
+  }
+
+  ID3D11Device* DirectX11Api::GetDevice()
+  {
+    return d3d_device_;
+  }
+
+  ID3D11DeviceContext* DirectX11Api::GetDeviceContext()
+  {
+    return d3d_context_;
   }
 }

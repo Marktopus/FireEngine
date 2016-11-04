@@ -16,6 +16,9 @@ namespace Fire
       // idea - default shader that tells you your shits wrong
       bool Compile(void* device);
       bool AttemptRecompile(void* device);
+      void PreRender() override;
+      void UpdateBuffers() override;
+      void UpdateBuffer(const char* buffer, void* tempSrc = nullptr) override;
 
       void* GetVertPointer();
       void* GetPixPointer();

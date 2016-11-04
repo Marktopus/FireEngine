@@ -1,6 +1,8 @@
 #pragma once
 #include "GraphicsApi.h"
 #include "DxIncludes.h"
+
+#include "Math/Matrix4.h"
 namespace sf
 {
   class Window;
@@ -31,6 +33,10 @@ namespace Fire
         size_t size, 
         size_t stride, 
         void* src);
+
+
+      ID3D11Device* GetDevice();
+      ID3D11DeviceContext* GetDeviceContext();
     private:
       IDXGISwapChain* d3d_swap_chain_;
       DXGI_SWAP_CHAIN_DESC d3d_description_;
@@ -48,8 +54,7 @@ namespace Fire
 
 //      ID3D11Buffer* temp_render_buffer_;
 
-      VertexBuffer* temp_vert_buffer_; 
-      Shader* temp_shader_;
+
 
   };
 }

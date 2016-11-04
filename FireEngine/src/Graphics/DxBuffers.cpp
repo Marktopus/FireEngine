@@ -1,16 +1,33 @@
 #include "Precompiled.h"
 #include "DxBuffers.h"
 #include "DxIncludes.h"
+
+#include "../Core/Engine.h"
+#include "Graphics.h"
+#include "DirectX11Api.h"
 namespace Fire
 {
+  DxConstantBuffer::Element::Element(const char* name, size_t size, size_t offset)
+  : name_(name),
+    size_(size),
+    offset_(offset)
+  {
+    
+  }
+
   DxConstantBuffer::DxConstantBuffer(
-    ID3D11Device* device, 
     size_t size,
+    size_t slot,
     void* src,
     CpuAccessType::Enum cpuAccess, 
     BufferUsageType::Enum bufferUsage) 
-  : ConstantBuffer(size, src)
+  : ConstantBuffer(size, src),
+    slot_(slot)
   {
+    Graphics* gSys = (Graphics*)Engine::GetEngine()->GetSystem(SystemType::Graphics);
+    DirectX11Api* api = (DirectX11Api*)gSys->GetApi();
+    ID3D11Device* device = api->GetDevice();
+
     D3D11_BUFFER_DESC bufferDesc;
     SecureZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
     D3D11_SUBRESOURCE_DATA* buffData = nullptr;
@@ -69,19 +86,50 @@ namespace Fire
     // todo: delete
   }
 
-  void DxConstantBuffer::SetSource(void* src)
-  {
-    // do a bunch of dx shit.....
+  void DxConstantBuffer::BufferData(void* tempSrc)
+  { 
+    void* src = (tempSrc) ? tempSrc : source_;
+    if (!source_)
+    {
+      source_ = src;
+    }
+    if(src)
+    {
+      // directx call
+      Graphics* gSys = (Graphics*)Engine::GetEngine()->GetSystem(SystemType::Graphics);
+      DirectX11Api* api = (DirectX11Api*)gSys->GetApi();
+      ID3D11DeviceContext* context = api->GetDeviceContext();
+      D3D11_MAPPED_SUBRESOURCE mapped;
+      auto err = context->Map(
+        buffer_, 
+        0, 
+        D3D11_MAP_WRITE_DISCARD, 
+        0, 
+        &mapped);
+      if (err != S_OK)
+      {
+        //panic
+        __debugbreak();
+      }
+      memcpy(mapped.pData, src, size_);
 
+      context->Unmap(buffer_, 0);
+    }
   }
+
 
   void* DxConstantBuffer::GetBufferPointer()
   {
     return buffer_;
   }
 
+  size_t DxConstantBuffer::GetSlot()
+  {
+    return slot_;
+  }
+  
+
   DxVertexBuffer::DxVertexBuffer(
-    ID3D11Device* device, 
     size_t size, 
     size_t stride, 
     void* src,
@@ -89,6 +137,9 @@ namespace Fire
     BufferUsageType::Enum bufferUsage)
   : VertexBuffer(size, stride, src)
   {
+    Graphics* gSys = (Graphics*)Engine::GetEngine()->GetSystem(SystemType::Graphics);
+    DirectX11Api* api = (DirectX11Api*)gSys->GetApi();
+    ID3D11Device* device = api->GetDevice();
     D3D11_BUFFER_DESC bufferDesc;
     SecureZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
     D3D11_SUBRESOURCE_DATA* buffData = nullptr;
@@ -157,4 +208,5 @@ namespace Fire
   {
     return buffer_;
   }  
+
 }

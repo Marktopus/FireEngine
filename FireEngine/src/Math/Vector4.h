@@ -16,6 +16,7 @@ namespace Fire
     float& operator[](const int& ind);
     const float& operator[](const int& ind) const;
     Vector4 operator-(const Vector4& rhs) const;
+    Vector4 operator-() const;
     Vector4& operator-=(const Vector4& rhs);
     Vector4 operator+(const Vector4& rhs) const;
     Vector4& operator+=(const Vector4& rhs);
@@ -27,7 +28,7 @@ namespace Fire
     bool operator!=(const Vector4& rhs) const;
 
     void Zero();
-
+    void Set(float x, float y, float z, float w);
 
     static bool ApproxEqual(const Vector4& one, const Vector4& two, float epsilon = Math::Epsilon);
     static float Dot(const Vector4& one, const Vector4& two);

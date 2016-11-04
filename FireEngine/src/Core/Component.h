@@ -4,6 +4,7 @@
 
 namespace Fire 
 {
+  class GameObject;
   class Component
   {
     public:
@@ -14,6 +15,7 @@ namespace Fire
       void Deactivate();
       bool GetActive();
       ComponentType::Enum GetType();
+      GameObject* GetBase();
       
 
       virtual void Initialize() = 0;
@@ -21,7 +23,9 @@ namespace Fire
       virtual void Load() = 0;
       virtual void Update(float dt) = 0;
     protected:
+      friend class GameObject;
       ComponentType::Enum type_;
       bool active_;
+      GameObject* base_;
   };
 }

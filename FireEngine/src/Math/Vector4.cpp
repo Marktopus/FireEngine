@@ -59,6 +59,11 @@ namespace Fire
     return Vector4(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
   }
 
+  Vector4 Vector4::operator-() const
+  {
+    return Vector4(-x, -y, -z, -w);
+  }
+
   Vector4& Vector4::operator-=(const Vector4& rhs)
   {
     x -= rhs.x;
@@ -131,6 +136,13 @@ namespace Fire
     w = 0.0f;
   }
 
+  void Vector4::Set(float in_x, float in_y, float in_z, float in_w)
+  {
+    x = in_x;
+    y = in_y;
+    z = in_z;
+    w = in_w;
+  }
   bool Vector4::ApproxEqual(const Vector4& one, const Vector4& two, float epsilon)
   {
     return 

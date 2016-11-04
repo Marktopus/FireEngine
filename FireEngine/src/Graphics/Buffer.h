@@ -25,19 +25,36 @@ namespace Fire
   class ConstantBuffer
   {
     public:
+      struct Element 
+      {
+        Element(const char* name, size_t size, size_t offset);
+        const char* name_;
+        size_t size_;
+        size_t offset_;
+      };
       ConstantBuffer(
         size_t size, 
         void* src = nullptr);
       virtual ~ConstantBuffer();
       virtual void Init() = 0;
-      //virtual void BufferData() = 0;
-      virtual void SetSource(void* src) = 0;
+      virtual void BufferData(void* tempSrc = nullptr) = 0;
+      virtual void SetSource(void* src);
       virtual void* GetSource();
       virtual size_t GetSize();
       virtual void* GetBufferPointer() = 0;
+
+      bool NeedsUpdate();
+      void Update(void* tempSrc = nullptr);
+
+      void AddElement(Element* element);
+      void AddElement(const char* name, size_t size, size_t offset);
+      void WriteElement(const char* name, void* source);
+      void WriteBuffer(void* source);
     protected:
       size_t size_;
       void* source_;
+      bool needs_update_;
+      std::unordered_map<const char*, Element*> elements_;
   };
 
   class VertexBuffer

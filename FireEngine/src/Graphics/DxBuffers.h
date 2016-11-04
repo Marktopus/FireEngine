@@ -8,18 +8,21 @@ namespace Fire
   class DxConstantBuffer : public ConstantBuffer
   {
     public:
+      
       DxConstantBuffer(
-        ID3D11Device* device, 
         size_t size,
+        size_t slot,
         void* src = nullptr,
         CpuAccessType::Enum cpuAccess = CpuAccessType::Write, 
         BufferUsageType::Enum bufferUsage = BufferUsageType::ReadGpuWriteCpu);
       ~DxConstantBuffer();
 
       void Init() override;
-      void SetSource(void* src) override;
+      void BufferData(void* tempSrc = nullptr);
       void* GetBufferPointer() override;
+      size_t GetSlot();
     private:
+      size_t slot_;
       ID3D11Buffer* buffer_;
   };
 
@@ -27,7 +30,6 @@ namespace Fire
   {
     public:
       DxVertexBuffer(
-        ID3D11Device* device, 
         size_t size, 
         size_t stride, 
         void* src = nullptr,

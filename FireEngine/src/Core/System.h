@@ -7,7 +7,7 @@ namespace Fire
   class System
   {
     public:
-      System(SystemType::Enum type);
+      System(SystemType::Enum type = SystemType::Count);
       virtual ~System();
 
       void Activate();

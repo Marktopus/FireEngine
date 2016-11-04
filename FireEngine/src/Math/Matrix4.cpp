@@ -82,12 +82,12 @@ namespace Fire
       rhs.v[0][0] * v[2][0] + rhs.v[1][0] * v[2][1] + rhs.v[2][0] * v[2][2] + rhs.v[3][0] * v[2][3],
       rhs.v[0][1] * v[2][0] + rhs.v[1][1] * v[2][1] + rhs.v[2][1] * v[2][2] + rhs.v[3][1] * v[2][3],
       rhs.v[0][2] * v[2][0] + rhs.v[1][2] * v[2][1] + rhs.v[2][2] * v[2][2] + rhs.v[3][2] * v[2][3],
-      rhs.v[0][3] * v[3][0] + rhs.v[1][3] * v[3][1] + rhs.v[2][3] * v[3][2] + rhs.v[3][3] * v[3][3],
+      rhs.v[0][3] * v[2][0] + rhs.v[1][3] * v[2][1] + rhs.v[2][3] * v[2][2] + rhs.v[3][3] * v[2][3],
 
       rhs.v[0][0] * v[3][0] + rhs.v[1][0] * v[3][1] + rhs.v[2][0] * v[3][2] + rhs.v[3][0] * v[3][3],
       rhs.v[0][1] * v[3][0] + rhs.v[1][1] * v[3][1] + rhs.v[2][1] * v[3][2] + rhs.v[3][1] * v[3][3],
       rhs.v[0][2] * v[3][0] + rhs.v[1][2] * v[3][1] + rhs.v[2][2] * v[3][2] + rhs.v[3][2] * v[3][3],
-      rhs.v[0][3] * v[2][0] + rhs.v[1][3] * v[2][1] + rhs.v[2][3] * v[2][2] + rhs.v[3][3] * v[2][3]);
+      rhs.v[0][3] * v[3][0] + rhs.v[1][3] * v[3][1] + rhs.v[2][3] * v[3][2] + rhs.v[3][3] * v[3][3]);
 /*
     return Matrix4(
       v[0][0] * rhs.v[0][0] + v[1][0] * rhs.v[0][1] + v[2][0] * rhs.v[0][2] + v[3][0] * rhs.v[0][3],
@@ -215,7 +215,8 @@ namespace Fire
     rotation.v[1][2] = -sine;
     rotation.v[2][1] = sine;
 
-    return *this * rotation;
+    *this *= rotation;
+    return *this;
   }
 
   Matrix4 Matrix4::GetRotatedX(float rot) const
@@ -238,8 +239,8 @@ namespace Fire
 
     rotation.v[0][2] = sine;
     rotation.v[2][0] = -sine;
-
-    return *this * rotation;
+    *this *= rotation;
+    return *this;
   }
 
   Matrix4 Matrix4::GetRotatedY(float rot) const
@@ -262,8 +263,8 @@ namespace Fire
 
     rotation.v[0][1] = -sine;
     rotation.v[1][0] = sine;
-
-    return *this * rotation;
+    *this *= rotation;
+    return *this;
   }
 
   Matrix4 Matrix4::GetRotatedZ(float rot) const
@@ -288,7 +289,7 @@ namespace Fire
   Matrix4& Matrix4::Rotate(float x, float y, float z)
   {
     RotateX(x);
-    RotateY(y);    
+    RotateY(y);
     RotateZ(z);
     return *this;
   }
@@ -301,7 +302,8 @@ namespace Fire
 
   Matrix4& Matrix4::Translate(const Vector3& rhs)
   {
-    return Translate(rhs[0], rhs[1], rhs[2]);
+    *this = Translate(rhs[0], rhs[1], rhs[2]);
+    return *this;
   }
 
   Matrix4 Matrix4::GetTranslated(const Vector3& rhs)
@@ -310,7 +312,7 @@ namespace Fire
     return toRet.Translate(rhs);
   }
 
-  Matrix4& Matrix4::Translate(float x, float y, float z) const
+  Matrix4 Matrix4::Translate(float x, float y, float z) const
   {
     // 1.0, 0.0, 0.0, x1    0.0
     // 0.0, 1.0, 0.0, y1    0.0
@@ -331,6 +333,42 @@ namespace Fire
   {
     Matrix4 toRet(*this);
     return toRet.Translate(x, y, z);
+  }
+
+  Matrix4& Matrix4::ViewTransform(
+    const Vector3& right, 
+    const Vector3& up, 
+    const Vector3& forward, 
+    const Vector3& pos)
+  {
+    v[0].Set(right.x, right.y, right.z, 0.0);
+    v[1].Set(up.x, up.y, up.z, 0.0);
+    v[2].Set(forward.x, forward.y, forward.z, 0.0);
+    v[3].Set(Vector3::Dot(pos, right), Vector3::Dot(pos, up), Vector3::Dot(pos, forward), 1.0);
+    return *this;
+  }
+
+  Matrix4& Matrix4::PerspectiveTransform(float fov, float nearPlane, float farPlane, float aspect)
+  {
+    float widthScale = 1.0f / tan(fov/2);
+    //aspect = (width / height)
+    //horizontalfov / verticalfov = width / height
+    float heightScale = 1.0f / (aspect / widthScale);
+    float zScale = farPlane / (farPlane - nearPlane);
+    float wScale = -(farPlane * nearPlane) / (farPlane - nearPlane);
+    Zero();
+    v[0][0] = widthScale;
+    v[1][1] = heightScale;
+    v[2][2] = zScale;
+    v[3][2] = wScale;
+    v[2][3] = 1.0;
+    return *this;
+  }
+
+  Matrix4 & Matrix4::OrthographicTransform(float left, float right, float top, float bottom)
+  {
+    return *this;
+    // TODO: insert return statement here
   }
 
 

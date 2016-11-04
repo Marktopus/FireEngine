@@ -1,6 +1,11 @@
 #include "Precompiled.h"
 #include "DxShader.h"
 #include "DxIncludes.h"
+#include "DxBuffers.h"
+
+#include "../Core/Engine.h"
+#include "Graphics.h"
+#include "DirectX11Api.h"
 namespace Fire
 {
   DxShader::DxShader(const std::string& name)
@@ -40,7 +45,6 @@ namespace Fire
     if(error != S_OK) 
     {
       __debugbreak();
-      return false;
     }
     if(errorMsg)
     {
@@ -137,48 +141,37 @@ namespace Fire
 
 
 
-    //for(size_t i = 0; i < shaderDesc.ConstantBuffers; i++)
-    //{
-    //  ID3D11ShaderReflectionConstantBuffer* pConstantReflection = vertShaderReflection->GetConstantBufferByIndex(i);
-    //  D3D11_SHADER_BUFFER_DESC desc;
-    //  error = pConstantReflection->GetDesc(&desc);
-    //  if(error != S_OK)
-    //  {
-    //    __debugbreak();
-    //  }
+    for(size_t i = 0; i < shaderDesc.ConstantBuffers; i++)
+    {
+      ID3D11ShaderReflectionConstantBuffer* pConstantReflection = vertShaderReflection->GetConstantBufferByIndex(i);
+      D3D11_SHADER_BUFFER_DESC desc;
+      error = pConstantReflection->GetDesc(&desc);
+      if(error != S_OK)
+      {
+        __debugbreak();
+      }
 
-    //  D3D11_BUFFER_DESC bufferDesc;
-    //  SecureZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
-    //  D3D11_SUBRESOURCE_DATA* buffData = nullptr;
+      DxConstantBuffer* newBuf = new DxConstantBuffer(
+        desc.Size,
+        i
+      );
 
-    //  bufferDesc.ByteWidth = sizeof(float) * 4 * 3;
-    //  bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    //  bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    //  bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+      for(size_t varInd = 0; varInd < desc.Variables; ++varInd)
+      {
+        ID3D11ShaderReflectionVariable* curVar = pConstantReflection->GetVariableByIndex(varInd);
+        D3D11_SHADER_VARIABLE_DESC varDesc;
+        error = curVar->GetDesc(&varDesc);
+        if(error != S_OK)
+        {
+          __debugbreak();
+        }
 
-    //  d3d_device_->CreateBuffer(
-    //    &bufferDesc,
-    //    buffData,
-    //    &temp_render_buffer_);
+        newBuf->AddElement(varDesc.Name, varDesc.Size, varDesc.StartOffset);
+      }
 
-    //  for(size_t varInd = 0; varInd < desc.Variables; ++varInd)
-    //  {
-    //    ID3D11ShaderReflectionVariable* curVar = pConstantReflection->GetVariableByIndex(varInd);
-    //    D3D11_SHADER_VARIABLE_DESC varDesc;
-    //    error = curVar->GetDesc(&varDesc);
-    //    if(error != S_OK)
-    //    {
-    //      __debugbreak();
-    //    }
+      constant_buffers_.insert(std::make_pair(desc.Name, newBuf));
+    }
 
-    //    newBuf->AddParameter({varDesc.Name, varDesc.Size, varDesc.StartOffset});
-
-    //  }
-    //  newBuf->Initialize();
-    //  AddConstantBuffer(newBuf);
-    //  //m_cBuffer[i] = new d3d::ConstantBuffer(*m_pDevice, desc.Size);
-    //}
-    //int bufSize = shaderBuf->GetBufferSize();
     error = device->CreateInputLayout(
       &inputLayoutDesc[0],
       inputLayoutDesc.size(),
@@ -213,7 +206,6 @@ namespace Fire
     if(error != S_OK)
     {
       __debugbreak();
-      return false;
     }
     if(errorMsg)
     {
@@ -243,6 +235,55 @@ namespace Fire
   bool DxShader::AttemptRecompile(void* info)
   {
     return false;
+  }
+
+  void DxShader::PreRender()
+  {
+    UpdateBuffers();
+  }
+
+  void DxShader::UpdateBuffer(const char* name, void* tempSrc)
+  {
+    ID3D11Buffer* dxBuf;
+    auto bufIt = constant_buffers_.find(name);
+    if (bufIt != constant_buffers_.end())
+    {
+      DxConstantBuffer* buf = (DxConstantBuffer*)bufIt->second;
+      
+      if (buf->NeedsUpdate())
+      {
+        buf->Update(tempSrc);
+      }
+      dxBuf = (ID3D11Buffer*)buf->GetBufferPointer();
+      Graphics* gSys = (Graphics*)Engine::GetEngine()->GetSystem(SystemType::Graphics);
+      DirectX11Api* api = (DirectX11Api*)gSys->GetApi();
+      ID3D11DeviceContext* context = api->GetDeviceContext();
+      context->VSSetConstantBuffers(/*0,/*/buf->GetSlot(),/**/ 1, &dxBuf);  
+      //context->VSSetConstantBuffers(buf->GetSlot(), 1, &dxBuf);  
+    }
+  }
+
+  void DxShader::UpdateBuffers()
+  {
+    std::vector<ID3D11Buffer*> bufArray;
+    bufArray.resize(constant_buffers_.size());
+    DxConstantBuffer* buf;
+
+    int iteri = 0;
+    for(auto it : constant_buffers_)
+    { 
+      buf = (DxConstantBuffer*)it.second;
+      bufArray[buf->GetSlot()] = (ID3D11Buffer*)buf->GetBufferPointer();
+      if (buf->NeedsUpdate())
+      {
+        buf->Update();
+      }
+    }
+
+    Graphics* gSys = (Graphics*)Engine::GetEngine()->GetSystem(SystemType::Graphics);
+    DirectX11Api* api = (DirectX11Api*)gSys->GetApi();
+    ID3D11DeviceContext* context = api->GetDeviceContext();
+    context->VSSetConstantBuffers(0, constant_buffers_.size(), &bufArray[0]);
   }
 
   void* DxShader::GetVertPointer()

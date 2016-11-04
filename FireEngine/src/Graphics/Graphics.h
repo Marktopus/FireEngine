@@ -13,6 +13,7 @@ namespace Fire
   class Shader;
   class VertexBuffer;
   class Renderable;
+  class Camera;
   class Graphics : public System
   {
     public:
@@ -24,6 +25,7 @@ namespace Fire
       void CleanUp();
       void Reinitialize();
       GraphicsApi* GetApi();
+      Camera* GetCamera();
 
       void SetMesh(const std::string& meshName);
       void SetTexture(const std::string& textureName);
@@ -40,5 +42,7 @@ namespace Fire
       std::unordered_map<std::string, Texture*> textures_;
       std::unordered_map<std::string, Shader*> shaders_;
       std::vector<Renderable*> renderables_;
+
+      Camera* camera_;
   };
 }

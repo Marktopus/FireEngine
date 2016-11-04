@@ -55,9 +55,15 @@ namespace Fire
 
     Matrix4& Translate(const Vector3& rhs);
     Matrix4 GetTranslated(const Vector3& rhs);
-    Matrix4& Translate(float x, float y, float z) const;
+    Matrix4 Translate(float x, float y, float z) const;
     Matrix4 GetTranslated(float x, float y, float z) const;
 
+    // assumes dir vectors are normalized
+    Matrix4& ViewTransform(const Vector3& right, const Vector3& up, const Vector3& forward, const Vector3& pos);
+    Matrix4& PerspectiveTransform(float fov = Math::Pi/2.0f, float nearPlane = 0.001f, float farPlane = 10000.0f, float aspect = 800/600);
+    Matrix4& OrthographicTransform(float left, float right, float top, float bottom);
+
+    
     Vector4 Transform(const Vector4& vec);
     union 
     {

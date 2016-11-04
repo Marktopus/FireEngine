@@ -154,12 +154,14 @@
   <ItemGroup>
     <ClInclude Include="src\Components\Renderable.h" />
     <ClInclude Include="src\Core\Component.h" />
+    <ClInclude Include="src\Core\ComponentManager.h" />
     <ClInclude Include="src\Core\ComponentType.h" />
     <ClInclude Include="src\Core\Engine.h" />
     <ClInclude Include="src\Core\FrameCounter.h" />
     <ClInclude Include="src\Core\GameObject.h" />
     <ClInclude Include="src\Core\SystemType.h" />
     <ClInclude Include="src\Graphics\Buffer.h" />
+    <ClInclude Include="src\Graphics\Camera.h" />
     <ClInclude Include="src\Graphics\DirectX11Api.h" />
     <ClInclude Include="src\Graphics\DxBuffers.h" />
     <ClInclude Include="src\Graphics\DxIncludes.h" />
@@ -183,6 +185,7 @@
     <ClCompile Include="src\Core\FrameCounter.cpp" />
     <ClCompile Include="src\Core\GameObject.cpp" />
     <ClCompile Include="src\Graphics\Buffer.cpp" />
+    <ClCompile Include="src\Graphics\Camera.cpp" />
     <ClCompile Include="src\Graphics\DirectX11Api.cpp" />
     <ClCompile Include="src\Graphics\DxBuffers.cpp" />
     <ClCompile Include="src\Graphics\DxShader.cpp" />

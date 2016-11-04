@@ -12,7 +12,7 @@ namespace Fire
   : active_(false),
     frame_counter_(nullptr)
   {
-    memset(systems_, 0, sizeof(systems_));
+    memset(systems_, 0, sizeof(System*) * SystemType::Count);
   }
 
   Engine::~Engine()
@@ -28,7 +28,7 @@ namespace Fire
   void Engine::AddSystem(System* system) 
   { 
     SystemType::Enum type = system->GetType();
-    if(!engine->systems_[type])
+    if(engine->systems_[type] == nullptr)
     {
       engine->systems_[type] = system;
     }

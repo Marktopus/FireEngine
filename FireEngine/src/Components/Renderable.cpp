@@ -27,5 +27,6 @@ namespace Fire
     graphics->SetMesh(mesh_name_);
     graphics->SetShader(shader_name_);
     graphics->SetTexture(texture_name_);
+    
   }
 }

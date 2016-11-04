@@ -56,6 +56,11 @@ namespace Fire
     return Vector3(x - rhs.x, y - rhs.y, z - rhs.z);
   }
 
+  Vector3 Vector3::operator-() const
+  {
+    return Vector3(-x, -y, -z);
+  }
+
   Vector3& Vector3::operator-=(const Vector3& rhs)
   {
     x -= rhs.x;
@@ -123,6 +128,30 @@ namespace Fire
     z = 0.0f;
   }
 
+  void Vector3::Normalize()
+  {
+    float len = sqrt((x * x) + (y * y) + (z * z));
+    if (abs(len) > 0.0)
+    {
+      x /= len;
+      y /= len;
+      z /= len;
+    }
+  }
+
+  Vector3 Vector3::GetNormalized()
+  {
+    Vector3 newVec(*this);
+    newVec.Normalize();
+    return newVec;
+  }
+
+  void Vector3::Set(float in_x, float in_y, float in_z)
+  {
+    x = in_x;
+    y = in_y;
+    z = in_z;
+  }
   bool Vector3::ApproxEqual(const Vector3& one, const Vector3& two, float epsilon)
   {
     return 

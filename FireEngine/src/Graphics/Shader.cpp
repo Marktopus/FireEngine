@@ -12,4 +12,13 @@ namespace Fire
   {
 
   }
+  ConstantBuffer* Shader::GetBuffer(const char* name)
+  {
+    auto bufIt = constant_buffers_.find(name);
+    if(bufIt != constant_buffers_.end())
+    { 
+      return bufIt->second;
+    }
+    return nullptr;
+  }
 }

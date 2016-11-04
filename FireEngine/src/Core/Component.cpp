@@ -34,4 +34,9 @@ namespace Fire
   {
     return type_;
   }
+
+  GameObject* Component::GetBase()
+  {
+    return base_;
+  }
 }
